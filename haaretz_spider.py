@@ -58,12 +58,8 @@ class HaaretzCrawler(scrapy.Spider):
             article_row['content'] = str(paragraph.xpath('//text()').extract()).strip()
             yield article_row
 
-
-if __name__ == '__main__':
-    date_string = str(time.strftime("%d_%m_%Y"))
-    output_file_name = 'haaretz_articls_{}'.format(date_string)
-    cmdline.execute(
-        ('scrapy runspider news_crawlers/haaretz_spider.py -o %s.csv -t csv' % output_file_name).split())
-    # time.sleep(10)
-    df = pd.read_csv('%s.csv' % output_file_name)
-    df.to_excel('%s.xlsx' % output_file_name)
+    def extract_articles(self, file_name):
+        cmdline.execute(
+            ('scrapy runspider haaretz_spider.py -o %s.csv -t csv' % file_name).split())
+        df = pd.read_csv('%s.csv' % file_name)
+        df.to_excel('%s.xlsx' % file_name)

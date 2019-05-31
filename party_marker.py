@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 class PartyMarker:
     def __init__(self, party_file_path='parties.xlsx'):
@@ -11,6 +11,8 @@ class PartyMarker:
             self._member_party_dict.update({member: party for member in members})
 
     def mark(self, text):
+        if type(text) != str:
+            return
         parties = []
         for member, party in self._member_party_dict.items():
             if member in text:
@@ -19,9 +21,3 @@ class PartyMarker:
 
     def mark_lines(self, texts):
         return pd.Series(texts).apply(self.mark)
-
-
-pm = PartyMarker('parties.xlsx')
-data = pd.read_csv('haaretz_articls_15_05_2019.csv')
-data['Party'] = pm.mark_lines(data['content'])
-data.to_excel('haaretz_articls_15_05_2019_with_party.xlsx')
