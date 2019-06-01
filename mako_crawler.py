@@ -38,12 +38,13 @@ class MakoCrawler:
         page_num = 1
         while page_num < NUMBER_OF_PAGES:
             articles = soup.find_all('h5')
-            for article in articles:
+            for i, article in enumerate(articles):
+                print('\r Crawl {}/{}'.format(str(i + 1), len(articles)), end='')
                 self.extract_data_from_page("https://www.mako.co.il" + article.find('a').get('href'))
             page_num += 1
             url = "https://www.mako.co.il/news-military/politics?page=" + str(page_num)
             page = urlopen(url)
             soup = BeautifulSoup(page, features="lxml")
-
+        print()
         df = pd.DataFrame(self.data, columns=['title', 'sub_title', 'author', 'date', 'content'])
         df.to_excel(file_name)

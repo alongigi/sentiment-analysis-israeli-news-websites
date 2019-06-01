@@ -13,10 +13,10 @@ class PartyMarker:
     def mark(self, text):
         if type(text) != str:
             return
-        parties = []
+        parties = set()
         for member, party in self._member_party_dict.items():
             if member in text:
-                parties.append(party)
+                parties.add(party)
         return ' | '.join(parties)
 
     def mark_lines(self, texts):

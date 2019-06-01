@@ -29,24 +29,9 @@ class YnetCrawler:
         soup = BeautifulSoup(page, features="lxml")
         articles = soup.find_all('h4')
 
-        for article in articles:
+        for i, article in enumerate(articles):
+            print('\r Crawl {}/{}'.format(str(i+1), len(articles)), end='')
             self.extract_data_from_page("https://www.ynet.co.il" + article.find('a').get('href'))
-
-        # hrefs = soup.find_all('a')
-
-        # for href in hrefs:
-        #     if href.text == 'כתבות נוספות':
-        #         url = href.get('href')
-        #         break
-        # page = urlopen(url)
-        # soup = BeautifulSoup(page, features="lxml")
-        # articles = soup.find_all("a", class_="smallheader")
-
-        # for article in articles:
-        #     try:
-        #         self.extract_data_from_page("https://www.ynet.co.il" + article.get('href'))
-        #     except AttributeError:
-        #         pass
-
+        print()
         df = pd.DataFrame(self.data, columns=['title', 'sub_title', 'author', 'date', 'content'])
         df.to_excel(file_name)
