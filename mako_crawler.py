@@ -32,6 +32,11 @@ class MakoCrawler:
                 self.data.append(new_article)
 
     def extract_articles(self, file_name):
+        '''
+        Crawl articles and create xlsx output file
+        :param file_name: output file name
+        :return:
+        '''
         page = urlopen(self.url)
         soup = BeautifulSoup(page, features="lxml")
 

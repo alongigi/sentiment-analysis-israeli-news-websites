@@ -11,6 +11,11 @@ class PartyMarker:
             self._member_party_dict.update({member: party for member in members})
 
     def mark(self, text):
+        '''
+        return parties inside text
+        :param text: content
+        :return: parties separated by ' | '
+        '''
         if type(text) != str:
             return
         parties = set()
@@ -20,4 +25,9 @@ class PartyMarker:
         return ' | '.join(parties)
 
     def mark_lines(self, texts):
+        '''
+        return parties inside text for list of texts
+        :param texts: contents
+        :return: Series(parties)
+        '''
         return pd.Series(texts).apply(self.mark)

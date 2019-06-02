@@ -1,6 +1,7 @@
 from mako_crawler import MakoCrawler
 from Parties import Parties
 from party_visualization import PartyVisualization
+from statistic_extractor import StatisticExtractor
 from ynet_crawler import YnetCrawler
 from haaretz_spider import HaaretzCrawler
 from party_marker import PartyMarker
@@ -12,6 +13,10 @@ from sentiment_analyzer import SentimentAnalyzer
 
 
 def crawler_articles():
+    '''
+    Run crawlers
+    :return:
+    '''
     print('Crawl ynet')
     ynet_crawler = YnetCrawler("https://www.ynet.co.il/home/0,7340,L-317,00.html")
     ynet_crawler.extract_articles("crawled/ynet.xlsx")
@@ -27,6 +32,10 @@ def crawler_articles():
 
 
 def mark_parties():
+    '''
+    Mark parties inside crawled files
+    :return:
+    '''
     p = Parties()
     df = p.extract_parties()
     df.to_excel('parties.xlsx')
@@ -40,34 +49,57 @@ def mark_parties():
     print()
 
 
-def sentiment_analysis(translated_articles):
+def sentiment_analysis(translated_articles_path):
+    '''
+    Generate sentiment
+    :param translated_articles_path: translated_articles_path
+    :return:
+    '''
     sa = SentimentAnalyzer()
-    file_names = os.listdir(translated_articles)
+    file_names = os.listdir(translated_articles_path)
     for i, file in enumerate(file_names):
-        print('\r generate sentiment for {}, {}/{}'.format(file, str(i+1), len(file_names)), end='')
+        print('\r generate sentiment for {}, {}/{}'.format(file, str(i + 1), len(file_names)), end='')
         df = pd.read_excel('translated/' + file)
         df['sentiment'] = sa.analise_texts(df['content_translated'])
-        df.to_excel(translated_articles + file)
+        df.to_excel(translated_articles_path + file)
     print()
 
 
-def visualization(translated_articles):
+def visualization(translated_articles_path):
+    '''
+    Generate visualizations
+    :param translated_articles_path: translated_articles_path
+    :return:
+    '''
     pv = PartyVisualization()
     rows = []
-    file_names = os.listdir(translated_articles)
+    file_names = os.listdir(translated_articles_path)
     for i, file in enumerate(file_names):
         print('\r generate visualization for {}, {}/{}'.format(file, str(i + 1), len(file_names)), end='')
-        rows.append(pv.show_plots(translated_articles + file))
+        rows.append(pv.plot_rows(translated_articles_path + file))
     print()
     show(column(*rows))
 
 
+def statistics(translated_articles_path, output_path):
+    '''
+    Generate statistics
+    :param translated_articles_path: translated_articles_path
+    :param output_path: output dir path for statistics
+    :return:
+    '''
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    es = StatisticExtractor(output_path)
+    es.extract_statistics_for_files(translated_articles_path)
+
+
 if __name__ == "__main__":
     files_name = []
-    # print('Crawl data')
-    # crawler_articles()
-    # print('Mark parties')
-    # mark_parties()
+    print('Crawl data')
+    crawler_articles()
+    print('Mark parties')
+    mark_parties()
 
     ######################################
     # you have to translate the articles #
@@ -77,4 +109,4 @@ if __name__ == "__main__":
     print('Generate visualization')
     visualization('translated/')
 
-
+    statistics('translated/', 'output')

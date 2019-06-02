@@ -12,27 +12,48 @@ class PartyVisualization:
     def __init__(self):
         output_file("pie.html")
 
-    def show_plots(self, file_name):
+    def plot_rows(self, file_name):
+        '''
+        Return rows of plots
+        :param file_name: plot data file
+        :return:
+        '''
         df = pd.read_excel(file_name)
-        party_sentiment_df = df[['Party', 'sentiment']]
-        party_sentiment_df.dropna(inplace=True)
-        party_Sentiment_dict = defaultdict(list)
-        for parties, sentiment in party_sentiment_df.to_records(index=False):
-            for party in map(str.strip, parties.split(' | ')):
-                party_Sentiment_dict[party].append(sentiment)
+        party_sentiment_dict = self.get_party_sentiment_dict(df)
         pass
 
         Category20c[1] = Category20c[3][:1]
         Category20c[2] = Category20c[3][:2]
         plots = []
-        for party in sorted(party_Sentiment_dict.keys()):
-            plots.append(self.create_plot(party, party_Sentiment_dict, file_name))
+        for party in sorted(party_sentiment_dict.keys()):
+            plots.append(self.create_plot(party, party_sentiment_dict, file_name))
         return row(*plots)
 
+    def get_party_sentiment_dict(self, df):
+        '''
+        Create dict of {party: [sentiments]}
+        :param df: df containing ['Party', 'sentiment'] columns
+        :return: {party: [sentiments]}
+        '''
+        party_sentiment_df = df[['Party', 'sentiment']]
+        party_sentiment_df.dropna(inplace=True)
+        party_sentiment_dict = defaultdict(list)
+        for parties, sentiment in party_sentiment_df.to_records(index=False):
+            for party in map(str.strip, parties.split(' | ')):
+                party_sentiment_dict[party].append(sentiment)
+        return party_sentiment_dict
+
     def create_plot(self, party, party_Sentiment_dict, file_name):
+        '''
+        Generate plot for a party in a file
+        :param party: party name
+        :param party_Sentiment_dict: {party: [sentiments]}
+        :param file_name: input_file name
+        :return:
+        '''
         color_dict = {'neg': 'red',
                       'neu': 'yellow',
-                      'pos': 'green',}
+                      'pos': 'green', }
         x = Counter(party_Sentiment_dict[party])
         data = pd.Series(x).reset_index(name='value').rename(columns={'index': 'sentiment'}).sort_values('sentiment')
         data['angle'] = data['value'] / data['value'].sum() * 2 * pi

@@ -24,6 +24,12 @@ from scrapy.settings.deprecated import check_deprecated_settings
 
 
 def execute(argv=None, settings=None):
+    '''
+    Run command for scrapy, the original command exit the program when finish crawling so we modified it
+    :param argv: run_command
+    :param settings: setting
+    :return:
+    '''
     if argv is None:
         argv = sys.argv
 
@@ -85,6 +91,10 @@ class HaaretzCrawler(scrapy.Spider):
     name = "haaretz_spider"
 
     def start_requests(self):
+        '''
+        Initial url for crawling
+        :return: [urls]
+        '''
         base_urls = [
             'https://www.haaretz.co.il/news/elections/',
             'https://www.haaretz.co.il/news/politi/'
@@ -99,6 +109,11 @@ class HaaretzCrawler(scrapy.Spider):
                 yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
+        '''
+        Extraxt data for article
+        :param response:
+        :return:
+        '''
         page_json = json.loads(response.text)
         articles = page_json.get('items', [])
         for item in articles:
@@ -123,6 +138,11 @@ class HaaretzCrawler(scrapy.Spider):
                     yield parse_article
 
     def parse_article(self, response):
+        '''
+        Extract paragraphs
+        :param response:
+        :return:
+        '''
         filter_fields = ['depth', 'download_timeout', 'download_slot', 'download_latency']
 
         # article_row['content'] = '<p>'.join(
@@ -135,6 +155,11 @@ class HaaretzCrawler(scrapy.Spider):
             yield article_row
 
     def extract_articles(self, file_name):
+        '''
+        Crawl articles and create xlsx output file
+        :param file_name: output file_name
+        :return:
+        '''
         execute(
             ('scrapy runspider haaretz_spider.py -o %s.csv -t csv' % file_name).split())
         df = pd.read_csv('%s.csv' % file_name)

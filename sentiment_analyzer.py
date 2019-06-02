@@ -7,6 +7,11 @@ class SentimentAnalyzer:
         self._sentence_analyser = SentimentIntensityAnalyzer()
 
     def analise(self, text):
+        '''
+        Analyze sentiment in text
+        :param text: input text
+        :return: sentiment
+        '''
         if type(text) != str:
             return
         score = self._sentence_analyser.polarity_scores(text)
@@ -20,5 +25,10 @@ class SentimentAnalyzer:
             return 'neu'
 
     def analise_texts(self, texts):
+        '''
+        Analyze sentiment in text for list of texts
+        :param texts: list of texts
+        :return: [sentiment]
+        '''
         texts = texts.dropna()
         return pd.Series(map(self.analise, texts))
